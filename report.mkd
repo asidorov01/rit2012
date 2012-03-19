@@ -1,4 +1,4 @@
-Part 1. Dependency Injection 
+Inversion of control.
 ====================
 
 От хардкода к Dependency Injection
@@ -191,7 +191,7 @@ Part 1. Dependency Injection
 
 </pre>
 
-Лучше, мы не грузим класс, но теперь нужно следить чтобы был своевременно подгружен класс.
+Лучше, мы не перегружаем код излишними связями, но теперь нужно следить чтобы был своевременно подгружен сервис storage.
 
 Слайд 6. Итак, что же DI?
 ----------------------
@@ -199,12 +199,12 @@ Part 1. Dependency Injection
 DI это прием когда, компоненты получают свои зависимости через конструктор, методы или непосредственно в свойства.
 
 
-Слайд 7. Inversion of control. Прослойка между классом и DI.
+Слайд 7. Container. Прослойка между классом и DI.
 ----------------------
 
-*Показать реализацию через Colosures для рекурсивных настроек*
+В реальной ситуации необходимо подключение нескольких сервисов к классу, нам нужен контейнер содержащий много классов или Service Locator.
 
-Используя IoC получаем мы полностью выносим внешнюю библиотеку за класс.
+Используя контейнер мы можем обслуживать множество классов.
 
 <pre>
     class User
@@ -259,3 +259,13 @@ DI это прием когда, компоненты получают свои 
 
 </pre>
 
+
+
+Полезные ссылки:
+----------------
+
+[Pimple](https://github.com/fabpot/Pimple)
+
+[Symfony DI component](http://symfony.com/doc/current/components/dependency_injection.html)
+
+[Inversion of Control Containers and the Dependency Injection pattern](http://martinfowler.com/articles/injection.html)

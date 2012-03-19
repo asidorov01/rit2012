@@ -16,4 +16,3 @@
 
     $user = new User();
     $user->setParameter('id', 1);
-?>

@@ -16,7 +16,7 @@
 
     class SessionStorage
     {
-        public function __construct($name) 
+        public function __construct() 
         {
             session_name('PHP_SESSION_ID');
             session_start();
@@ -29,4 +29,3 @@
 
     $user = new User();
     $user->setParameter('id', 1);
-?>

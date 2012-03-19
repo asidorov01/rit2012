@@ -11,6 +11,11 @@
         {
             $this->container->get('storage')->set($key, $value);
         }
+        public function getParameter($key)
+        {
+            return $this->container->get('storage')->get($key);
+        }
+        
     }
 
     class Container
@@ -38,6 +43,11 @@
         {
             $_SESSION[$key] = $value;
         }
+        
+        public function get($key)
+        {
+            return isset($_SESSION[$key])?$_SESSION[$key]:null;
+        }
     }
     
     $c = new Container();
@@ -48,5 +58,14 @@
         ));
     
     $user = new User($c);
-    $user->setParameter('id', 1);
+    
+    if($user->getParameter('id')!==null)
+    {
+        $user->setParameter('id', $user->getParameter('id')+1);
+    }else
+    {
+        $user->setParameter('id', 1);
+    }
+
+    echo $user->getParameter('id');
 ?>

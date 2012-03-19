@@ -31,4 +31,3 @@
     $storage_type = 'SessionStorage';
     $user = new User($storage_type);
     $user->setParameter('id', 1);
-?>

@@ -1,4 +1,9 @@
 <?php
+    Interface Storage
+    {
+        public function __construct();
+        public function set($key, $value);
+    }
 
     class User
     {
@@ -16,9 +21,9 @@
 
     class SessionStorage implements Storage
     {
-        public function __construct($name) 
+        public function __construct($cookie_name) 
         {
-            session_name('PHP_SESSION_ID');
+            session_name($cookie_name);
             session_start();
         }
         public function set($key, $value)
@@ -27,8 +32,8 @@
         }
     }
 
-    //Добавляется конфигурирование.
-    $storage = new SessionStorage();
+    $storage = new SessionStorage('PHP_SESSION_ID');
     $user = new User($storage);
     $user->setParameter('id', 1);
-?>
+
+    
