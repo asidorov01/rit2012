@@ -1,0 +1,231 @@
+Dependency Injection vs Abstract Factory
+=====
+
+
+
+Принципиально Depenendency Injection (ID) и Abstract Factory (AF) решают схожую задачу - подключение внешнего кода с необходимым функционалом.
+
+
+
+
+
+---------
+Part 1. Dependency Injection 
+====================
+
+От хардкода к Dependency Injection
+
+Паттерны программирования позволяют создать тестируемый, стабильный код. Я хочу показать эволюцию от простого к сложному, на примере класса User и подключения сессий.
+
+*Если слушатели знают Factory, переключаемся на 3 пункт сразу.*
+
+1. Хардкод, или класс как контейнер с методами.
+---------
+
+Итак, самый простой пример:
+
+<pre>
+    class User
+    {
+        public function __construct() 
+        {
+            session_name('PHP_SESSION_ID');
+            session_start();
+        }
+
+        public function setParameter($key, $value)
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    $user = new User();
+    $user->setParameter('id', 1);
+</pre>
+
+Проблемы: Невозможно тестировать, со временем размер класса будет стремиться в бесконечность.
+
+
+2. Обычный ООП, разделяем на 2 класса.
+---------
+<pre>
+
+    class User
+    {
+        protected $storage;
+        public function __construct() 
+        {
+            $this->storage = new SessionStorage();
+        }
+
+        public function setParameter($key, $value)
+        {
+            $this->storage->set($key, $value);
+        }
+    }
+
+    class SessionStorage
+    {
+        public function __construct($name) 
+        {
+            session_name('PHP_SESSION_ID');
+            session_start();
+        }
+        public function set($key, $value)
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    $user = new User();
+    $user->setParameter('id', 1);
+</pre>
+Добавился новый класс, появилась инкапсуляция работы с сессиями в отдельном классе. Но все еще сложно тестировать, нам нужно подключать разные хранилища.
+
+3. Abstract Factory. 
+----------------------
+<pre>
+    class User
+    {
+        protected $storage;
+        public function __construct($storage_type) 
+        {
+            $this->storage = new $storage_type();
+        }
+
+        public function setParameter($key, $value)
+        {
+            $this->storage->set($key, $value);
+        }
+    }
+
+    class SessionStorage
+    {
+        public function __construct($name) 
+        {
+            session_name('PHP_SESSION_ID');
+            session_start();
+        }
+        public function set($key, $value)
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    //Добавляется конфигурирование.
+    $storage_type = 'SessionStorage';
+    $user = new User($storage_type);
+    $user->setParameter('id', 1);
+</pre>
+
+Теперь используем Factorу, чтобы проще было менять тип хранилища. Уже лучше, но объект все еще создается в конструкторе.
+
+4. Dependency Injection через конструктор.
+------------------
+<pre>
+
+    class User
+    {
+        protected $storage;
+        public function __construct(Storage $storage) 
+        {
+            $this->storage = $storage;
+        }
+
+        public function setParameter($key, $value)
+        {
+            $this->storage->set($key, $value);
+        }
+    }
+
+    class SessionStorage implements Storage
+    {
+        public function __construct($name) 
+        {
+            session_name('PHP_SESSION_ID');
+            session_start();
+        }
+        public function set($key, $value)
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    //Добавляется конфигурирование.
+    $storage = new SessionStorage();
+    $user = new User($storage);
+    $user->setParameter('id', 1);
+
+</pre>
+
+Однако мы не решили еще одну проблему, что если нет необходимости использовать сессию, а только класс User?
+
+4. Dependency Injection через setter/getter.
+------------------
+
+<pre>
+
+    class User
+    {
+        protected $storage;
+        public function setStorage(Storage $storage)
+        {
+            $this->storage = $storage;
+        }
+
+        public function setParameter($key, $value)
+        {
+            $this->storage->set($key, $value);
+        }
+    }
+
+    class SessionStorage implements Storage
+    {
+        public function __construct($name) 
+        {
+            session_name('PHP_SESSION_ID');
+            session_start();
+        }
+        public function set($key, $value)
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+
+    $storage = new SessionStorage();
+    $user = new User();
+    
+    $user->setStorage($storage);
+    $user->setParameter('id', 1);
+
+</pre>
+
+Лучше, мы не грузим класс, но теперь нужно следить чтобы был своевременно подгружен класс.
+
+5. Итак, что же DI?
+--------------
+DI это прием когда, компоненты получают свои зависимости через конструктор, методы или непосредственно в свойства.
+
+
+6. Inversion of control. Прослойка между классом и DI.
+------------------
+**Показать реализацию IoC**
+
+Используя IoC получаем мы полностью выносим внешнюю библиотеку за класс.
+
+<pre>
+    class User
+    {
+        public function setParameter($key, $value)
+        {
+            $this->getService('storage')->set($key, $value);
+        }
+    }
+
+    $user = new User();
+    $user->setParameter('id', 1);
+
+</pre>
+
+Part 2. Closures.
+========================
